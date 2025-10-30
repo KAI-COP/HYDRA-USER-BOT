@@ -6,14 +6,6 @@ Hydra UserBot - легкий и мощный юзербот для Telegram. А�
 - Telethon
 - API ID и API Hash от Telegram
 
-## ⚙️ Конфигурация
-1. Получите API credentials на [my.telegram.org](https://my.telegram.org)
-2. Создайте файл `config.py`:
-```python
-API_ID = 1234567
-API_HASH = 'your_api_hash_here'
-```
-
 **Мощный и легкий юзербот для Telegram с модульной архитектурой**
 
 ## 🚀 О проекте
@@ -29,29 +21,10 @@ Hydra - современный юзербот для Telegram с автомат�
 
 ## 🛠 Быстрый старт
 
-### 1. Установка
+### Установка
 ```bash
 git clone https://github.com/KAI-COP/HYDRA-USER-BOT/.git
 cd hydra-userbot
 pip install telethon
 python main.py
 ```
-
-
-
-🎯 Создание модулей
-# modules/example.py
-from utils.misc import edit_or_reply
-
-async def hello_handler(event):
-    await edit_or_reply(event, "👋 Привет!")
-
-modules_help = {"example": {"hello": "Приветствие"}}
-
-
-📁 Структура
-hydra/
-├── main.py          # Главный файл
-├── config.py        # Конфигурация
-├── utils/           # Вспомогательные модули
-└── modules/         # Папка для модулей
