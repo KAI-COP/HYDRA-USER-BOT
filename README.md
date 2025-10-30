@@ -31,7 +31,7 @@ Hydra - современный юзербот для Telegram с автомат�
 
 ### 1. Установка
 ```bash
-git clone https://github.com/yourusername/hydra-userbot.git
+git clone https://github.com/KAI-COP/HYDRA-USER-BOT/.git
 cd hydra-userbot
 pip install telethon
 python main.py
