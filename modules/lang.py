@@ -10,7 +10,7 @@ class TranslationSystem:
                 # Системные
                 'loading': "Загрузка...",
                 'error': "Ошибка",
-                'success': "Успешно",
+                'success': "Успех",
                 'warning': "Предупреждение",
                 'info': "Информация",
                 'not_found': "Не найдено",
@@ -23,6 +23,7 @@ class TranslationSystem:
                 'support': "поддержка",
                 'change_language': "Сменить язык",
                 'or': "или",
+                'and': "и",
                 'username': "Имя пользователя",
                 'performance': "производительность",
                 'metrics': "метрики",
@@ -31,11 +32,12 @@ class TranslationSystem:
                 
                 # Заголовки
                 'help_title': "СИСТЕМА ПОМОЩИ HYDRA",
-                'start_title': "Hydra user bot", 
+                'start_title': "Hydra User Bot", 
                 'ping_title': "РЕЗУЛЬТАТЫ PING",
                 'server_title': "ИНФОРМАЦИЯ О СЕРВЕРЕ",
                 'terminal_title': "ТЕРМИНАЛ",
                 'lang_title': "СИСТЕМА ЯЗЫКА",
+                'installer_title': "СИСТЕМА УСТАНОВКИ МОДУЛЕЙ",
                 
                 # Основные тексты
                 'version': "Версия",
@@ -83,6 +85,10 @@ class TranslationSystem:
                 'success_exec': "Успешно выполнено",
                 'stdout': "Стандартный вывод",
                 'stderr': "Ошибки",
+                'time': "Время",
+                'path': "Путь",
+                'command_executed': "Команда выполнена",
+                'with_exit_code': "с кодом выхода",
                 
                 # Server info
                 'os': "ОС",
@@ -100,6 +106,9 @@ class TranslationSystem:
                 'total_disk': "Всего диска",
                 'used_disk': "Использовано диска",
                 'free_disk': "Свободно диска",
+                'install': "Установить",
+                'server_hardware_info': "информация о серверном оборудовании",
+                'basic_system_info': "базовая системная информация",
                 
                 # Lang модуль
                 'language_set': "Язык установлен",
@@ -107,6 +116,61 @@ class TranslationSystem:
                 'supported_languages': "Поддерживаемые языки",
                 'current_language': "Текущий язык",
                 'set_language': "Установить язык",
+                'language_changed_success': "Язык успешно изменен",
+                'language_change_error': "Ошибка смены языка",
+                
+                # HLoader модуль
+                'module_installed': "Модуль установлен",
+                'module_removed': "Модуль удален",
+                'module_reloaded': "Модуль перезагружен",
+                'dangerous_code': "Опасный код",
+                'download_error': "Ошибка загрузки",
+                'installation_error': "Ошибка установки",
+                'loading_error': "Ошибка загрузки",
+                'uninstall_error': "Ошибка удаления",
+                'reload_error': "Ошибка перезагрузки",
+                'module_not_found': "Модуль не найден",
+                'multiple_modules_found': "Найдено несколько модулей",
+                'specify_exact_name': "Укажите точное имя",
+                'file_not_found': "Файл не найден",
+                'installed_modules': "Установленные модули",
+                'no_installed_modules': "Нет установленных модулей",
+                'module_information': "Информация о модуле",
+                'file': "Файл",
+                'source': "Источник",
+                'command_list': "Список команд",
+                'management': "Управление",
+                'scanning_modules': "Сканирование модулей",
+                'loaded_modules': "Загружено модулей",
+                'install_from_url': "Установить по ссылке",
+                'install_from_text': "Установить из текста",
+                'install_from_file': "Установить из файла",
+                'file_must_be_python': "Файл должен быть Python файлом (.py)",
+                'downloading_file': "Скачивание файла",
+                'file_read_error': "Ошибка чтения файла",
+                'downloading_module': "Скачивание модуля",
+                'commands_count': "команд",
+                'command_word_single': "команда",
+                'command_word_few': "команды",
+                'command_word_many': "команд",
+                'existing_source': "существующий",
+                'url_source': "URL",
+                'text_source': "текстовое сообщение",
+                'file_source': "файл",
+                'reload_source': "перезагрузка",
+                'available_commands': "Доступные команды",
+                'module_file': "Файл модуля",
+                'uninstall_usage': "Удалить модуль",
+                'reload_usage': "Перезагрузить модуль",
+                'module_info_usage': "Информация о модуле",
+                'list_modules_usage': "Список модулей",
+                'install_usage': "Установить модуль",
+                'safe_code_check': "Проверка безопасности кода",
+                'dangerous_patterns_detected': "Обнаружены опасные паттерны",
+                'forbidden_import': "Запрещенный импорт",
+                'forbidden_call': "Запрещенный вызов",
+                'syntax_error': "Синтаксическая ошибка",
+                'code_safety_check': "Проверка безопасности кода",
                 
                 # Общие фразы
                 'yes': "Да",
@@ -245,12 +309,27 @@ class TranslationSystem:
                 'popular_commands_list': "популярные команды",
                 'system_statistics': "системная статистика",
                 'search_functionality': "функция поиска",
-                'server_hardware_info': "информация о серверном оборудовании",
-                'basic_system_info': "базовая системная информация",
                 'execute_system_commands_safely': "выполнять системные команды безопасно",
-                'command_executed': "команда выполнена",
-                'with_exit_code': "с кодом выхода",
                 'no_modules_found': "модули не найдены",
+                
+                # Система ограничений
+                'rate_limit_exceeded': "ПРЕВЫШЕН ЛИМИТ ИСПОЛЬЗОВАНИЯ",
+                'limit_reached': "Достигнут лимит команд",
+                'wait_time': "Ожидание",
+                'current_usage': "Текущее использование",
+                'period': "Период",
+                'rate_limit_tip': "Советы по использованию",
+                'slow_down_commands': "Замедлите выполнение команд",
+                'wait_before_retry': "Подождите перед повторной попыткой",
+                'contact_admin_if_issue': "Обратитесь к администратору если это ошибка",
+                'anti_spam_protection': "Система защиты от спама",
+                'rate_limit_info': "Информация о лимитах",
+                'your_current_limits': "Ваши текущие лимиты",
+                'commands_used': "команд использовано",
+                'reset_in': "Сброс через",
+                'unlimited': "Неограниченно",
+                'rate_settings': "Настройки лимитов",
+                'protection_system': "Система защиты",
             },
             'en': {
                 # System
@@ -269,6 +348,7 @@ class TranslationSystem:
                 'support': "support",
                 'change_language': "Change language",
                 'or': "or",
+                'and': "and",
                 'username': "Username",
                 'performance': "performance",
                 'metrics': "metrics",
@@ -277,11 +357,12 @@ class TranslationSystem:
                 
                 # Titles
                 'help_title': "HYDRA HELP SYSTEM", 
-                'start_title': "Hydra user bot",
+                'start_title': "Hydra User Bot",
                 'ping_title': "PING RESULTS",
                 'server_title': "SERVER INFORMATION", 
                 'terminal_title': "TERMINAL",
                 'lang_title': "LANGUAGE SYSTEM",
+                'installer_title': "MODULE INSTALLATION SYSTEM",
                 
                 # Main texts
                 'version': "Version",
@@ -329,6 +410,10 @@ class TranslationSystem:
                 'success_exec': "Successfully executed",
                 'stdout': "Standard output",
                 'stderr': "Errors",
+                'time': "Time",
+                'path': "Path",
+                'command_executed': "Command executed",
+                'with_exit_code': "with exit code",
                 
                 # Server info
                 'os': "OS",
@@ -346,6 +431,9 @@ class TranslationSystem:
                 'total_disk': "Total disk",
                 'used_disk': "Used disk",
                 'free_disk': "Free disk",
+                'install': "Install",
+                'server_hardware_info': "server hardware information",
+                'basic_system_info': "basic system information",
                 
                 # Lang module
                 'language_set': "Language set",
@@ -353,6 +441,61 @@ class TranslationSystem:
                 'supported_languages': "Supported languages",
                 'current_language': "Current language",
                 'set_language': "Set language",
+                'language_changed_success': "Language successfully changed",
+                'language_change_error': "Language change error",
+                
+                # HLoader module
+                'module_installed': "Module installed",
+                'module_removed': "Module removed",
+                'module_reloaded': "Module reloaded",
+                'dangerous_code': "Dangerous code",
+                'download_error': "Download error",
+                'installation_error': "Installation error",
+                'loading_error': "Loading error",
+                'uninstall_error': "Uninstall error",
+                'reload_error': "Reload error",
+                'module_not_found': "Module not found",
+                'multiple_modules_found': "Multiple modules found",
+                'specify_exact_name': "Specify exact name",
+                'file_not_found': "File not found",
+                'installed_modules': "Installed modules",
+                'no_installed_modules': "No installed modules",
+                'module_information': "Module information",
+                'file': "File",
+                'source': "Source",
+                'command_list': "Command list",
+                'management': "Management",
+                'scanning_modules': "Scanning modules",
+                'loaded_modules': "Loaded modules",
+                'install_from_url': "Install from URL",
+                'install_from_text': "Install from text",
+                'install_from_file': "Install from file",
+                'file_must_be_python': "File must be Python file (.py)",
+                'downloading_file': "Downloading file",
+                'file_read_error': "File read error",
+                'downloading_module': "Downloading module",
+                'commands_count': "commands",
+                'command_word_single': "command",
+                'command_word_few': "commands",
+                'command_word_many': "commands",
+                'existing_source': "existing",
+                'url_source': "URL",
+                'text_source': "text message",
+                'file_source': "file",
+                'reload_source': "reload",
+                'available_commands': "Available commands",
+                'module_file': "Module file",
+                'uninstall_usage': "Uninstall module",
+                'reload_usage': "Reload module",
+                'module_info_usage': "Module information",
+                'list_modules_usage': "List modules",
+                'install_usage': "Install module",
+                'safe_code_check': "Safe code check",
+                'dangerous_patterns_detected': "Dangerous patterns detected",
+                'forbidden_import': "Forbidden import",
+                'forbidden_call': "Forbidden call",
+                'syntax_error': "Syntax error",
+                'code_safety_check': "Code safety check",
                 
                 # Common phrases
                 'yes': "Yes",
@@ -491,12 +634,27 @@ class TranslationSystem:
                 'popular_commands_list': "popular commands",
                 'system_statistics': "system statistics",
                 'search_functionality': "search functionality",
-                'server_hardware_info': "server hardware information",
-                'basic_system_info': "basic system information",
                 'execute_system_commands_safely': "execute system commands safely",
-                'command_executed': "command executed",
-                'with_exit_code': "with exit code",
                 'no_modules_found': "no modules found",
+                
+                # Rate limiting system
+                'rate_limit_exceeded': "RATE LIMIT EXCEEDED",
+                'limit_reached': "Command limit reached",
+                'wait_time': "Wait time",
+                'current_usage': "Current usage",
+                'period': "Period",
+                'rate_limit_tip': "Usage tips",
+                'slow_down_commands': "Slow down command execution",
+                'wait_before_retry': "Wait before retrying",
+                'contact_admin_if_issue': "Contact admin if this is an error",
+                'anti_spam_protection': "Anti-spam protection system",
+                'rate_limit_info': "Rate limit information",
+                'your_current_limits': "Your current limits",
+                'commands_used': "commands used",
+                'reset_in': "Reset in",
+                'unlimited': "Unlimited",
+                'rate_settings': "Rate settings",
+                'protection_system': "Protection system",
             }
         }
     
@@ -530,42 +688,42 @@ async def lang_handler(event):
     
     if len(args) == 1:
         current_lang = translator.get_current_language(event.sender_id)
-        text = f"""<b>︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎🌐 {translator.get_text(event.sender_id, 'lang_title')}</b>
+        text = f"""<b>🌐 {translator.get_text(event.sender_id, 'lang_title')}</b>
 
-<b>📝 {translator.get_text(event.sender_id, 'current_language')}:</b> <code>{current_lang.upper()}</code>
+<blockquote>📝 <b>{translator.get_text(event.sender_id, 'current_language')}:</b> <code>{current_lang.upper()}</code>
 
-<b>🔧 {translator.get_text(event.sender_id, 'usage')}:</b>
-<blockquote expandable><code>.lang ru</code> {translator.get_text(event.sender_id, 'or')} <code>.lang en</code></blockquote>
+🔧 <b>{translator.get_text(event.sender_id, 'usage')}:</b>
+<code>.lang ru</code> {translator.get_text(event.sender_id, 'or')} <code>.lang en</code>
 
-<b>💡 {translator.get_text(event.sender_id, 'examples')}:</b>
-<blockquote expandable><code>.lang ru</code> - Русский
+💡 <b>{translator.get_text(event.sender_id, 'examples')}:</b>
+<code>.lang ru</code> - Русский
 <code>.lang en</code> - English</blockquote>
 
-<blockquote expandable>💡 {translator.get_text(event.sender_id, 'use')} <code>.lang</code> {translator.get_text(event.sender_id, 'to_see')} {translator.get_text(event.sender_id, 'current')} {translator.get_text(event.sender_id, 'settings')}</blockquote>"""
+<blockquote>💡 {translator.get_text(event.sender_id, 'use')} <code>.lang</code> {translator.get_text(event.sender_id, 'to_see')} {translator.get_text(event.sender_id, 'current')} {translator.get_text(event.sender_id, 'settings')}</blockquote>"""
         
         await loading_msg.edit(text, parse_mode='HTML')
         return
     
     language = args[1].lower()
     if translator.set_language(event.sender_id, language):
-        text = f"""<b>︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎✅ {translator.get_text(event.sender_id, 'language_set')}</b>
+        text = f"""<b>✅ {translator.get_text(event.sender_id, 'language_changed_success')}</b>
 
-<b>🌍 {translator.get_text(event.sender_id, 'language')}:</b> <code>{language.upper()}</code>
-<b>👤 {translator.get_text(event.sender_id, 'user')}:</b> <code>{event.sender_id}</code>
+<blockquote>🌍 <b>{translator.get_text(event.sender_id, 'language')}:</b> <code>{language.upper()}</code>
+👤 <b>{translator.get_text(event.sender_id, 'user')}:</b> <code>{event.sender_id}</code></blockquote>
 
-<blockquote expandable>💡 {translator.get_text(event.sender_id, 'success')}! {translator.get_text(event.sender_id, 'language')} {translator.get_text(event.sender_id, 'success')}</blockquote>"""
+<blockquote>💡 {translator.get_text(event.sender_id, 'success')}! {translator.get_text(event.sender_id, 'language')} {translator.get_text(event.sender_id, 'success')}</blockquote>"""
         
         await loading_msg.edit(text, parse_mode='HTML')
     else:
-        text = f"""<b>︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎❌ {translator.get_text(event.sender_id, 'error')}</b>
+        text = f"""<b>❌ {translator.get_text(event.sender_id, 'language_change_error')}</b>
 
-<b>🚫 {translator.get_text(event.sender_id, 'unsupported_language')}:</b> <code>{language}</code>
+<blockquote>🚫 <b>{translator.get_text(event.sender_id, 'unsupported_language')}:</b> <code>{language}</code>
 
-<b>✅ {translator.get_text(event.sender_id, 'supported_languages')}:</b>
-<blockquote expandable>🇷🇺 <code>ru</code> - Russian
+✅ <b>{translator.get_text(event.sender_id, 'supported_languages')}:</b>
+🇷🇺 <code>ru</code> - Russian
 🇺🇸 <code>en</code> - English</blockquote>
 
-<blockquote expandable>💡 {translator.get_text(event.sender_id, 'use')} <code>.lang</code> {translator.get_text(event.sender_id, 'to_see')} {translator.get_text(event.sender_id, 'current')} {translator.get_text(event.sender_id, 'settings')}</blockquote>"""
+<blockquote>💡 {translator.get_text(event.sender_id, 'use')} <code>.lang</code> {translator.get_text(event.sender_id, 'to_see')} {translator.get_text(event.sender_id, 'current')} {translator.get_text(event.sender_id, 'settings')}</blockquote>"""
         
         await loading_msg.edit(text, parse_mode='HTML')
 
@@ -575,19 +733,19 @@ async def languages_handler(event):
     loading_msg = await edit_or_reply(event, "🌍")
     await fast_animation(loading_msg, "🌍", f"🌍 {translator.get_text(event.sender_id, 'loading')}")
     
-    text = f"""<b>︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎🌐 {translator.get_text(event.sender_id, 'supported_languages').upper()}</b>
+    text = f"""<b>🌐 {translator.get_text(event.sender_id, 'supported_languages').upper()}</b>
 
-<b>🇷🇺 Russian (ru)</b>
+<blockquote>🇷🇺 <b>Russian (ru)</b>
 - {translator.get_text(event.sender_id, 'full')} Russian {translator.get_text(event.sender_id, 'support')}
 
-<b>🇺🇸 English (en)</b> 
+🇺🇸 <b>English (en)</b> 
 - {translator.get_text(event.sender_id, 'full')} English {translator.get_text(event.sender_id, 'support')}
 
-<b>💡 {translator.get_text(event.sender_id, 'usage')}:</b>
-<blockquote expandable><code>.lang ru</code> - Русский
+💡 <b>{translator.get_text(event.sender_id, 'usage')}:</b>
+<code>.lang ru</code> - Русский
 <code>.lang en</code> - English</blockquote>
 
-<blockquote expandable>🌍 {translator.get_text(event.sender_id, 'choose_your_preferred_language')} {translator.get_text(event.sender_id, 'for_better_experience')}</blockquote>"""
+<blockquote>🌍 {translator.get_text(event.sender_id, 'choose_your_preferred_language')} {translator.get_text(event.sender_id, 'for_better_experience')}</blockquote>"""
 
     await loading_msg.edit(text, parse_mode='HTML')
 
@@ -598,19 +756,19 @@ async def mylang_handler(event):
     username = getattr(event.sender, 'username', translator.get_text(event.sender_id, 'not_set'))
     first_name = getattr(event.sender, 'first_name', translator.get_text(event.sender_id, 'unknown'))
     
-    text = f"""<b>︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎ ︎  ︎︎ ︎ ⁠⁠⁠︎🌐 {translator.get_text(event.sender_id, 'language').upper()} {translator.get_text(event.sender_id, 'settings')}</b>
+    text = f"""<b>🌐 {translator.get_text(event.sender_id, 'language').upper()} {translator.get_text(event.sender_id, 'settings')}</b>
 
-<b>👤 {translator.get_text(event.sender_id, 'user')}:</b> {first_name}
-<b>📱 {translator.get_text(event.sender_id, 'username')}:</b> @{username}
-<b>🆔 ID:</b> <code>{event.sender_id}</code>
-<b>🌍 {translator.get_text(event.sender_id, 'current_language')}:</b> <code>{current_lang.upper()}</code>
+<blockquote>👤 <b>{translator.get_text(event.sender_id, 'user')}:</b> {first_name}
+📱 <b>{translator.get_text(event.sender_id, 'username')}:</b> @{username}
+🆔 <b>ID:</b> <code>{event.sender_id}</code>
+🌍 <b>{translator.get_text(event.sender_id, 'current_language')}:</b> <code>{current_lang.upper()}</code>
 
-<b>🔧 {translator.get_text(event.sender_id, 'available')} {translator.get_text(event.sender_id, 'commands')}:</b>
-<blockquote expandable><code>.lang ru</code> - Русский
+🔧 <b>{translator.get_text(event.sender_id, 'available')} {translator.get_text(event.sender_id, 'commands')}:</b>
+<code>.lang ru</code> - Русский
 <code>.lang en</code> - English
 <code>.languages</code> - {translator.get_text(event.sender_id, 'all')} {translator.get_text(event.sender_id, 'languages_list')}</blockquote>
 
-<blockquote expandable>⚙️ {translator.get_text(event.sender_id, 'your_personal_settings')}</blockquote>"""
+<blockquote>⚙️ {translator.get_text(event.sender_id, 'your_personal_settings')}</blockquote>"""
 
     await edit_or_reply(event, text, parse_mode='HTML')
 
