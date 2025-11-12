@@ -1,6 +1,8 @@
 from utils.misc import edit_or_reply, rate_limit
 import asyncio
 import time
+import os 
+import re
 
 @rate_limit(limit=5, period=60)
 async def terminal_handler(event):
