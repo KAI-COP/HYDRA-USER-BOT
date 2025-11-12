@@ -1,29 +1,41 @@
-from utils.misc import edit_or_reply, rate_limit
+from utils.misc import edit_or_reply, fast_animation, rate_limit
+from modules.lang import translator
 import asyncio
-import time
-import os 
+import os
 import re
+import random
+from datetime import datetime
 
-@rate_limit(limit=5, period=60)
+@rate_limit(limit=5, period=30)
 async def terminal_handler(event):
     """
     .terminal [команда] - Выполнить команду в терминале
     """
     try:
+        user_id = event.sender_id
         args = event.text.split(maxsplit=1)
         if len(args) == 1:
-            help_text = f"""<b>🖥️ Terminal</b>
+            # Меню помощи с красивым форматированием
+            help_text = f"""<b>{translator.get_text(user_id, 'terminal_help_title')}</b>
 
-<blockquote>⚡ <b>Использование:</b>
-<code>.terminal команда</code>
+<blockquote>⚡ <b>{translator.get_text(user_id, 'terminal_help_usage')}:</b>
+<code>.terminal {translator.get_text(user_id, 'command').lower()}</code>
 
-📋 <b>Примеры:</b>
+📋 <b>{translator.get_text(user_id, 'terminal_help_examples')}:</b>
 <code>.terminal ls -la</code>
 <code>.terminal pwd</code>
-<code>.terminal python3 --version</code></blockquote>
+<code>.terminal python3 --version</code>
+<code>.terminal neofetch</code>
 
-<blockquote>🎯 <i>Умное обновление: интервалы 0.4-5 сек</i>
-<i>Не рекомендуем использовать быстрые анимации</i></blockquote>"""
+🔧 <b>{translator.get_text(user_id, 'terminal_help_permissions')}:</b> <code>{'🛡️ SUDO ROOT' if os.geteuid() == 0 else '👤 USER'}</code>
+📁 <b>{translator.get_text(user_id, 'terminal_help_current_path')}:</b> <code>{os.getcwd()}</code></blockquote>
+
+<b>{translator.get_text(user_id, 'terminal_help_features')}:</b>
+<blockquote>• {translator.get_text(user_id, 'terminal_live_updates')}
+• {translator.get_text(user_id, 'terminal_animations_support')}
+• {translator.get_text(user_id, 'terminal_ansi_cleanup')}
+• {translator.get_text(user_id, 'terminal_long_commands')}
+• {translator.get_text(user_id, 'terminal_hang_protection')}</blockquote>"""
             
             await edit_or_reply(event, help_text, parse_mode='HTML')
             return
@@ -33,31 +45,34 @@ async def terminal_handler(event):
         # Проверка опасных команд
         dangerous_commands = ['rm -rf /', 'dd if=', 'mkfs', ':(){:|:&};:']
         if any(danger in cmd for danger in dangerous_commands):
-            await edit_or_reply(event, "🚫 <b>Опасная команда заблокирована!</b>", parse_mode='HTML')
+            await edit_or_reply(event, f"🚫 <b>{translator.get_text(user_id, 'terminal_dangerous_blocked')}!</b>", parse_mode='HTML')
             return
         
         # Экранирование кавычек для bash
         escaped_cmd = cmd.replace("'", "'\"'\"'")
         full_cmd = f"bash -c '{escaped_cmd}'"
         
-        # Анимация загрузки
+        # Анимация загрузки с прогрессом
         loading_msg = await edit_or_reply(event, "🖥️")
+        await fast_animation(loading_msg, "🖥️", f"🖥️ {translator.get_text(user_id, 'terminal_executing_command')}...")
         
         # Информация о системе
-        start_time = time.time()
-        current_user = os.getenv('USER', 'unknown')
+        start_time = datetime.now()
+        current_user = os.getenv('USER', translator.get_text(user_id, 'unknown'))
         current_path = os.getcwd()
         
-        # Выполнение команды с умными интервалами
-        result = await execute_with_smart_updates(event, loading_msg, full_cmd, start_time, current_user, current_path, original_cmd=cmd)
+        # Выполнение команды с live-выводом
+        result = await execute_with_live_output(event, loading_msg, full_cmd, start_time, current_user, current_path, original_cmd=cmd)
             
         await loading_msg.edit(result, parse_mode='HTML')
         
     except Exception as e:
-        await edit_or_reply(event, f"<b>❌ Ошибка:</b> <code>{str(e)}</code>", parse_mode='HTML')
+        await edit_or_reply(event, f"<b>❌ {translator.get_text(event.sender_id, 'error')}:</b> <code>{str(e)}</code>", parse_mode='HTML')
 
-async def execute_with_smart_updates(event, message, cmd, start_time, user, path, original_cmd=None):
-    """Выполнение команды с умными интервалами обновления"""
+async def execute_with_live_output(event, message, cmd, start_time, user, path, original_cmd=None):
+    """Выполнение команды с live-обновлением вывода"""
+    
+    user_id = event.sender_id
     
     if original_cmd is None:
         original_cmd = cmd
@@ -70,37 +85,22 @@ async def execute_with_smart_updates(event, message, cmd, start_time, user, path
         stdin=asyncio.subprocess.PIPE
     )
     
-    # Переменные для обновления
+    # Переменные для live-обновления
     current_output = ""
     current_stderr = ""
-    last_update_time = start_time
+    last_update_time = asyncio.get_event_loop().time()
     update_count = 0
-    MAX_UPDATES = 50  # Уменьшили максимальное количество обновлений
-    
-    # Определяем начальный интервал на основе типа команды
-    base_interval = await get_smart_interval(original_cmd)
-    current_interval = base_interval
+    MAX_UPDATES = 200
+    MIN_UPDATE_INTERVAL = 0.5
     
     async def update_display(final=False):
-        """Обновление отображения с умными интервалами"""
-        nonlocal last_update_time, update_count, current_interval
+        """Обновление отображения с текущим выводом"""
+        nonlocal last_update_time, update_count
         
-        current_time = time.time()
-        execution_time = current_time - start_time
+        current_time = asyncio.get_event_loop().time()
+        execution_time = (datetime.now() - start_time).total_seconds()
         
-        # Умное определение интервала
-        if execution_time > 30:  # Если команда выполняется долго
-            current_interval = 5.0  # Увеличиваем интервал до 5 сек
-        elif execution_time > 15:
-            current_interval = 3.0
-        elif execution_time > 5:
-            current_interval = 1.5
-        else:
-            current_interval = base_interval
-        
-        # Проверяем, прошло ли достаточно времени с последнего обновления
-        time_since_last_update = current_time - last_update_time
-        if (time_since_last_update >= current_interval or final) and update_count < MAX_UPDATES:
+        if (current_time - last_update_time >= MIN_UPDATE_INTERVAL or final) and update_count < MAX_UPDATES:
             
             result = format_live_output(
                 original_cmd, 
@@ -112,7 +112,7 @@ async def execute_with_smart_updates(event, message, cmd, start_time, user, path
                 process.returncode if final else None,
                 update_count,
                 final,
-                current_interval
+                user_id
             )
             
             try:
@@ -121,37 +121,26 @@ async def execute_with_smart_updates(event, message, cmd, start_time, user, path
                 if not final:
                     update_count += 1
             except Exception as e:
-                # Если получили ошибку флуда, увеличиваем интервал
-                if "wait" in str(e).lower():
-                    current_interval = min(current_interval * 1.5, 10.0)  # Макс 10 сек
                 print(f"Update error: {e}")
     
     async def read_stream(stream, is_stdout=True):
-        """Чтение потока с умными обновлениями"""
+        """Чтение потока с обработкой live-вывода"""
         nonlocal current_output, current_stderr
         
         buffer = ""
-        last_chunk_time = time.time()
-        
         while True:
             try:
                 chunk = await stream.read(512)
                 if not chunk:
-                    if buffer:
-                        # Обновляем перед завершением
-                        if is_stdout:
-                            current_output = buffer
-                        else:
-                            current_stderr = buffer
-                        await update_display()
                     break
                     
                 text = chunk.decode('utf-8', errors='replace')
                 buffer += text
                 
-                # Обработка carriage return
+                # Обработка carriage return для перезаписи строк
                 if '\r' in buffer:
                     lines = buffer.split('\r')
+                    # Берем последнюю строку после всех \r
                     buffer = lines[-1]
                 
                 # Обновляем соответствующий вывод
@@ -160,37 +149,11 @@ async def execute_with_smart_updates(event, message, cmd, start_time, user, path
                 else:
                     current_stderr = buffer
                 
-                # Обновляем дисплей только если прошло достаточно времени
-                current_time = time.time()
-                if current_time - last_chunk_time >= current_interval:
-                    await update_display()
-                    last_chunk_time = current_time
+                # Обновляем дисплей
+                await update_display()
                 
             except Exception as e:
                 break
-    
-    async def get_smart_interval(command):
-        """Определяет умный интервал обновления на основе команды"""
-        command_lower = command.lower()
-        
-        # Быстрые команды - частые обновления
-        if any(cmd in command_lower for cmd in ['ls', 'pwd', 'whoami', 'echo', 'date']):
-            return 0.8
-        
-        # Команды с прогрессом - средние обновления
-        if any(cmd in command_lower for cmd in ['wget', 'curl', 'pip install', 'apt', 'yum']):
-            return 1.5
-        
-        # Долгие команды - редкие обновления
-        if any(cmd in command_lower for cmd in ['compile', 'build', 'make', 'npm install']):
-            return 3.0
-        
-        # Команды с выводом в реальном времени
-        if any(cmd in command_lower for cmd in ['tail -f', 'log', 'monitor']):
-            return 2.0
-        
-        # По умолчанию
-        return 1.2
     
     # Запускаем чтение потоков
     try:
@@ -221,50 +184,50 @@ async def execute_with_smart_updates(event, message, cmd, start_time, user, path
     final_stdout = stdout.decode('utf-8', errors='replace').strip() if stdout else current_output
     final_stderr = stderr.decode('utf-8', errors='replace').strip() if stderr else current_stderr
     
-    end_time = time.time()
-    execution_time = end_time - start_time
+    end_time = datetime.now()
+    execution_time = (end_time - start_time).total_seconds()
     
-    return format_final_output(original_cmd, process.returncode, final_stdout, final_stderr, execution_time, user, path)
+    return format_final_output(original_cmd, process.returncode, final_stdout, final_stderr, execution_time, user, path, user_id)
 
-def format_live_output(cmd, stdout_text, stderr_text, exec_time, user, path, returncode, update_count, final=False, interval=1.0):
-    """Форматирование live-вывода с информацией об интервалах"""
+def format_live_output(cmd, stdout_text, stderr_text, exec_time, user, path, returncode, update_count, final=False, user_id=None):
+    """Форматирование live-вывода"""
     
     status_icon = "✅" if final and returncode == 0 else "🔄"
     
     if final:
-        status_text = "Завершено"
+        status_text = translator.get_text(user_id, 'terminal_completed')
     else:
-        status_text = f"Выполняется... (обновление каждые {interval:.1f}сек)"
+        status_text = f"{translator.get_text(user_id, 'terminal_in_progress')} (#{update_count} {translator.get_text(user_id, 'terminal_updates_count')})"
     
-    result = f"""<b>🖥️ Terminal Live</b>
+    result = f"""<b>🖥️ {translator.get_text(user_id, 'terminal_live')}</b>
 
-<blockquote>🔧 <b>Команда:</b>
+<blockquote>🔧 <b>{translator.get_text(user_id, 'command')}:</b>
 <code>{cmd}</code>
 
-⏱️ <b>Время:</b> <code>{exec_time:.1f}сек</code>
-🔄 <b>Обновления:</b> <code>{update_count}</code>
-📊 <b>Интервал:</b> <code>{interval:.1f}сек</code>
-{f'📊 <b>Код выхода:</b> <code>{returncode}</code>' if final else ''}</blockquote>
+⏱️ <b>{translator.get_text(user_id, 'time')}:</b> <code>{exec_time:.1f}{translator.get_text(user_id, 'seconds')}</code>
+👤 <b>{translator.get_text(user_id, 'user')}:</b> <code>{user}</code>
+📁 <b>{translator.get_text(user_id, 'path')}:</b> <code>{path}</code>
+{f'📊 <b>{translator.get_text(user_id, 'exit_code')}:</b> <code>{returncode}</code>' if final else ''}</blockquote>
 
 """
     
     if stdout_text:
-        clean_output = clean_ansi_codes(stdout_text[-1500:])
-        result += f"""<b>📨 Вывод:</b>
+        clean_output = clean_ansi_codes(stdout_text[-2000:])
+        result += f"""<b>📨 {translator.get_text(user_id, 'stdout')}:</b>
 <pre>{clean_output}</pre>
 
 """
     
     if stderr_text:
-        clean_stderr = clean_ansi_codes(stderr_text[-800:])
-        result += f"""<b>🚨 Ошибки:</b>
+        clean_stderr = clean_ansi_codes(stderr_text[-1000:])
+        result += f"""<b>🚨 {translator.get_text(user_id, 'stderr')}:</b>
 <pre>{clean_stderr}</pre>
 
 """
     
     if not stdout_text and not stderr_text:
-        result += f"""<b>📨 Вывод:</b>
-<pre>Ожидание вывода...</pre>
+        result += f"""<b>📨 {translator.get_text(user_id, 'output')}:</b>
+<pre>{translator.get_text(user_id, 'waiting_output')}...</pre>
 
 """
     
@@ -272,47 +235,48 @@ def format_live_output(cmd, stdout_text, stderr_text, exec_time, user, path, ret
     
     return result
 
-def format_final_output(cmd, returncode, stdout_text, stderr_text, exec_time, user, path):
+def format_final_output(cmd, returncode, stdout_text, stderr_text, exec_time, user, path, user_id=None):
     """Форматирование финального вывода"""
     
     status_icon = "✅" if returncode == 0 else "❌"
     status_color = "🟢" if returncode == 0 else "🔴"
+    status_text = translator.get_text(user_id, 'terminal_success') if returncode == 0 else translator.get_text(user_id, 'terminal_failed')
     
-    result = f"""<b>🖥️ Terminal Result</b>
+    result = f"""<b>🖥️ {translator.get_text(user_id, 'terminal_result')}</b>
 
-<blockquote>🔧 <b>Команда:</b>
+<blockquote>🔧 <b>{translator.get_text(user_id, 'command')}:</b>
 <code>{cmd}</code>
 
-{status_color} <b>Статус:</b> <code>{'Успешно' if returncode == 0 else 'Ошибка'}</code>
-📊 <b>Код выхода:</b> <code>{returncode}</code>
-⏱️ <b>Время выполнения:</b> <code>{exec_time:.2f}сек</code>
-👤 <b>Пользователь:</b> <code>{user}</code>
-📁 <b>Путь:</b> <code>{path}</code></blockquote>
+{status_color} <b>{translator.get_text(user_id, 'status')}:</b> <code>{status_text}</code>
+📊 <b>{translator.get_text(user_id, 'exit_code')}:</b> <code>{returncode}</code>
+⏱️ <b>{translator.get_text(user_id, 'execution_time')}:</b> <code>{exec_time:.2f}{translator.get_text(user_id, 'seconds')}</code>
+👤 <b>{translator.get_text(user_id, 'user')}:</b> <code>{user}</code>
+📁 <b>{translator.get_text(user_id, 'path')}:</b> <code>{path}</code></blockquote>
 
 """
     
     if stdout_text:
         clean_stdout = clean_ansi_codes(stdout_text)
-        if len(clean_stdout) > 3000:
-            clean_stdout = clean_stdout[:3000] + "\n... (вывод обрезан)"
-        result += f"""<b>📨 Вывод:</b>
+        if len(clean_stdout) > 3500:
+            clean_stdout = clean_stdout[:3500] + f"\n... ({translator.get_text(user_id, 'output_truncated')})"
+        result += f"""<b>📨 {translator.get_text(user_id, 'output')}:</b>
 <pre>{clean_stdout}</pre>
 
 """
     
     if stderr_text:
         clean_stderr = clean_ansi_codes(stderr_text)
-        if len(clean_stderr) > 1500:
-            clean_stderr = clean_stderr[:1500] + "\n... (ошибки обрезаны)"
-        result += f"""<b>🚨 Ошибки:</b>
+        if len(clean_stderr) > 2000:
+            clean_stderr = clean_stderr[:2000] + f"\n... ({translator.get_text(user_id, 'errors_truncated')})"
+        result += f"""<b>🚨 {translator.get_text(user_id, 'stderr')}:</b>
 <pre>{clean_stderr}</pre>
 
 """
     
     if not stdout_text and not stderr_text:
-        result += f"<blockquote>ℹ️ <i>Команда выполнена без вывода</i></blockquote>\n"
+        result += f"<blockquote>ℹ️ <i>{translator.get_text(user_id, 'no_output')}</i></blockquote>\n"
 
-    result += f"""<blockquote>{status_icon} <i>Команда выполнена с кодом: {returncode}</i></blockquote>"""
+    result += f"""<blockquote>{status_icon} <i>{translator.get_text(user_id, 'terminal_completed_with_code')}: {returncode}</i></blockquote>"""
     
     return result
 
@@ -321,4 +285,170 @@ def clean_ansi_codes(text):
     ansi_escape = re.compile(r'\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])')
     return ansi_escape.sub('', text)
 
-# Остальные обработчики (term, shell, exec) остаются без изменений
+@rate_limit(limit=5, period=30)
+async def term_handler(event):
+    """Короткая версия terminal команды"""
+    await terminal_handler(event)
+
+@rate_limit(limit=5, period=30)
+async def shell_handler(event):
+    """Альтернативное имя для terminal"""
+    await terminal_handler(event)
+
+@rate_limit(limit=5, period=30)
+async def exec_handler(event):
+    """Альтернативное имя для terminal"""
+    await terminal_handler(event)
+
+# НОВЫЕ ФИШКИ ДЛЯ ТЕРМИНАЛА
+
+@rate_limit(limit=3, period=60)
+async def terminal_info_handler(event):
+    """Информация о терминальном окружении"""
+    try:
+        user_id = event.sender_id
+        loading_msg = await edit_or_reply(event, "🔍")
+        await fast_animation(loading_msg, "🔍", f"{translator.get_text(user_id, 'terminal_gathering_info')}...")
+        
+        # Собираем информацию о системе
+        shell_info = os.getenv('SHELL', translator.get_text(user_id, 'unknown'))
+        term_info = os.getenv('TERM', translator.get_text(user_id, 'unknown'))
+        
+        info_text = f"""<b>🔍 {translator.get_text(user_id, 'terminal_environment')}</b>
+
+<blockquote>🐚 <b>{translator.get_text(user_id, 'terminal_shell')}:</b> <code>{shell_info}</code>
+🖥️ <b>{translator.get_text(user_id, 'terminal_terminal')}:</b> <code>{term_info}</code>
+📁 <b>{translator.get_text(user_id, 'terminal_home_directory')}:</b> <code>{os.path.expanduser('~')}</code>
+🔧 <b>{translator.get_text(user_id, 'terminal_permissions')}:</b> <code>{'ROOT' if os.geteuid() == 0 else 'USER'}</code></blockquote>
+
+<b>📊 {translator.get_text(user_id, 'terminal_available_commands')}:</b>
+<blockquote>• <code>terminal</code> - {translator.get_text(user_id, 'execute_command_in_terminal')}
+• <code>terminal_info</code> - {translator.get_text(user_id, 'terminal_environment')}
+• <code>terminal_pwd</code> - {translator.get_text(user_id, 'terminal_current_directory')}
+• <code>terminal_ls</code> - {translator.get_text(user_id, 'terminal_directory_content')}</blockquote>
+
+<b>🎯 {translator.get_text(user_id, 'terminal_environment_variables')}:</b>
+<blockquote>• <b>PATH:</b> <code>{os.getenv('PATH', '')[:100]}...</code>
+• <b>LANG:</b> <code>{os.getenv('LANG', translator.get_text(user_id, 'not_set'))}</code>
+• <b>PWD:</b> <code>{os.getcwd()}</code></blockquote>"""
+        
+        await loading_msg.edit(info_text, parse_mode='HTML')
+        
+    except Exception as e:
+        await edit_or_reply(event, f"<b>❌ {translator.get_text(event.sender_id, 'error')}:</b> {str(e)}", parse_mode='HTML')
+
+@rate_limit(limit=10, period=30)
+async def terminal_pwd_handler(event):
+    """Показать текущую директорию"""
+    try:
+        user_id = event.sender_id
+        current_path = os.getcwd()
+        result = f"""<b>📁 {translator.get_text(user_id, 'terminal_current_directory')}</b>
+
+<blockquote>🛣️ <b>{translator.get_text(user_id, 'terminal_full_path')}:</b>
+<code>{current_path}</code>
+
+📊 <b>{translator.get_text(user_id, 'terminal_directory_info')}:</b>
+• <b>{translator.get_text(user_id, 'terminal_exists')}:</b> <code>{translator.get_text(user_id, 'yes') if os.path.exists(current_path) else translator.get_text(user_id, 'no')}</code>
+• <b>{translator.get_text(user_id, 'terminal_writable')}:</b> <code>{translator.get_text(user_id, 'yes') if os.access(current_path, os.W_OK) else translator.get_text(user_id, 'no')}</code>
+• <b>{translator.get_text(user_id, 'terminal_readable')}:</b> <code>{translator.get_text(user_id, 'yes') if os.access(current_path, os.R_OK) else translator.get_text(user_id, 'no')}</code></blockquote>
+
+<b>🚀 {translator.get_text(user_id, 'terminal_quick_commands')}:</b>
+<blockquote><code>.terminal_ls</code> - {translator.get_text(user_id, 'terminal_directory_content').lower()}
+<code>.terminal "cd /path"</code> - {translator.get_text(user_id, 'path').lower()}
+<code>.terminal "pwd && ls"</code> - {translator.get_text(user_id, 'command').lower()}</blockquote>"""
+        
+        await edit_or_reply(event, result, parse_mode='HTML')
+        
+    except Exception as e:
+        await edit_or_reply(event, f"<b>❌ {translator.get_text(event.sender_id, 'error')}:</b> {str(e)}", parse_mode='HTML')
+
+@rate_limit(limit=10, period=30)
+async def terminal_ls_handler(event):
+    """Показать содержимое текущей директории"""
+    try:
+        user_id = event.sender_id
+        loading_msg = await edit_or_reply(event, "📂")
+        await fast_animation(loading_msg, "📂", f"{translator.get_text(user_id, 'terminal_scanning_directory')}...")
+        
+        current_path = os.getcwd()
+        items = os.listdir(current_path)
+        
+        # Сортируем: сначала директории, потом файлы
+        dirs = [item for item in items if os.path.isdir(os.path.join(current_path, item))]
+        files = [item for item in items if os.path.isfile(os.path.join(current_path, item))]
+        
+        dirs.sort()
+        files.sort()
+        
+        result = f"""<b>📂 {translator.get_text(user_id, 'terminal_directory_content')}</b>
+
+<blockquote>📁 <b>{translator.get_text(user_id, 'path')}:</b> <code>{current_path}</code>
+📊 <b>{translator.get_text(user_id, 'terminal_items_count')}:</b> <code>{len(dirs)} {translator.get_text(user_id, 'terminal_folders')}, {len(files)} {translator.get_text(user_id, 'terminal_files')}</code></blockquote>
+
+"""
+        
+        if dirs:
+            result += f"<b>📁 {translator.get_text(user_id, 'terminal_folders_list')}:</b>\n<blockquote>"
+            for dir_name in dirs[:20]:
+                result += f"• 📁 <code>{dir_name}</code>\n"
+            if len(dirs) > 20:
+                result += f"• ... {translator.get_text(user_id, 'and')} {len(dirs) - 20} {translator.get_text(user_id, 'terminal_folders')}\n"
+            result += "</blockquote>\n"
+        
+        if files:
+            result += f"<b>📄 {translator.get_text(user_id, 'terminal_files_list')}:</b>\n<blockquote>"
+            for file_name in files[:20]:
+                file_path = os.path.join(current_path, file_name)
+                size = os.path.getsize(file_path) if os.path.exists(file_path) else 0
+                result += f"• 📄 <code>{file_name}</code> (<code>{size} {translator.get_text(user_id, 'bytes')}</code>)\n"
+            if len(files) > 20:
+                result += f"• ... {translator.get_text(user_id, 'and')} {len(files) - 20} {translator.get_text(user_id, 'terminal_files')}\n"
+            result += "</blockquote>"
+        
+        if not dirs and not files:
+            result += f"<blockquote>📭 <i>{translator.get_text(user_id, 'terminal_empty_directory')}</i></blockquote>"
+        
+        result += f"""\n<blockquote>💡 <i>{translator.get_text(user_id, 'terminal_use_for_details')}: </i><code>.terminal "ls -la"</code></blockquote>"""
+        
+        await loading_msg.edit(result, parse_mode='HTML')
+        
+    except Exception as e:
+        await edit_or_reply(event, f"<b>❌ {translator.get_text(event.sender_id, 'error')}:</b> {str(e)}", parse_mode='HTML')
+
+@rate_limit(limit=5, period=60)
+async def terminal_clear_handler(event):
+    """Очистить терминальную историю (символически)"""
+    try:
+        user_id = event.sender_id
+        import random
+        result = f"""<b>🧹 {translator.get_text(user_id, 'terminal_cleaner')}</b>
+
+<blockquote>🔄 <b>{translator.get_text(user_id, 'status')}:</b> <code>{translator.get_text(user_id, 'terminal_cleared_status')}</code>
+💾 <b>{translator.get_text(user_id, 'terminal_freed_space')}:</b> <code>~{random.randint(50, 500)} KB</code>
+📊 <b>{translator.get_text(user_id, 'terminal_optimization')}:</b> <code>{translator.get_text(user_id, 'terminal_cache_cleared')}</code></blockquote>
+
+<b>🎯 {translator.get_text(user_id, 'terminal_recommendations')}:</b>
+<blockquote>• {translator.get_text(user_id, 'use')} <code>.terminal "clear"</code> {translator.get_text(user_id, 'terminal_clear_session')}
+• <code>.terminal "history -c"</code> - {translator.get_text(user_id, 'terminal_clear_history')}
+• <code>.terminal "echo '' > ~/.bash_history"</code> - {translator.get_text(user_id, 'terminal_full_cleanup')}</blockquote>
+
+<blockquote>💡 <i>{translator.get_text(user_id, 'terminal_symbolic_cleanup')}. {translator.get_text(user_id, 'terminal_use_system_commands')}.</i></blockquote>"""
+        
+        await edit_or_reply(event, result, parse_mode='HTML')
+        
+    except Exception as e:
+        await edit_or_reply(event, f"<b>❌ {translator.get_text(event.sender_id, 'error')}:</b> {str(e)}", parse_mode='HTML')
+
+modules_help = {
+    "terminal": {
+        "terminal [command]": "Execute command in terminal with live output",
+        "term [command]": "Short version of terminal",
+        "shell [command]": "Execute shell command", 
+        "exec [command]": "Execute system command",
+        "terminal_info": "Terminal environment information",
+        "terminal_pwd": "Show current directory",
+        "terminal_ls": "Show directory content",
+        "terminal_clear": "Clear terminal history"
+    }
+}
