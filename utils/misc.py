@@ -94,13 +94,26 @@ def rate_limit(limit: int = 20, period: int = 120):
             
             # Проверяем лимит
             if len(_rate_limits[user_id]) >= limit:
-                wait_time = period - (current_time - _rate_limits[user_id][0])
-                await edit_or_reply(
-                    event,
-                    f"⏳ **Rate limit exceeded!**\n"
-                    f"Please wait `{int(wait_time)}` seconds\n"
-                    f"**Limit:** `{limit}` per `{period}`s"
-                )
+                wait_time = int(period - (current_time - _rate_limits[user_id][0]))
+                
+                # Красивое сообщение о лимите
+                from modules.lang import translator
+                limit_message = f"""
+<b>⏰ {translator.get_text(user_id, 'rate_limit_exceeded')}</b>
+
+<blockquote>🚫 <b>{translator.get_text(user_id, 'limit_reached')}</b>
+⏱️ <b>{translator.get_text(user_id, 'wait_time')}:</b> <code>{wait_time}{translator.get_text(user_id, 'seconds')}</code>
+📊 <b>{translator.get_text(user_id, 'current_usage')}:</b> <code>{len(_rate_limits[user_id])}/{limit}</code>
+🕒 <b>{translator.get_text(user_id, 'period')}:</b> <code>{period}{translator.get_text(user_id, 'seconds')}</code></blockquote>
+
+<b>💡 {translator.get_text(user_id, 'rate_limit_tip')}</b>
+<blockquote>• {translator.get_text(user_id, 'slow_down_commands')}
+• {translator.get_text(user_id, 'wait_before_retry')}
+• {translator.get_text(user_id, 'contact_admin_if_issue')}</blockquote>
+
+<blockquote>🔒 {translator.get_text(user_id, 'anti_spam_protection')}</blockquote>
+"""
+                await edit_or_reply(event, limit_message, parse_mode='HTML')
                 return
             
             # Добавляем текущее использование
@@ -136,3 +149,26 @@ def set_user_setting(user_id, key, value):
         user_settings[user_id] = {}
     user_settings[user_id][key] = value
     return save_settings(user_settings)
+
+def get_rate_limit_info(user_id):
+    """Получить информацию о текущих лимитах пользователя"""
+    if user_id not in _rate_limits:
+        return {
+            'current_usage': 0,
+            'max_limit': 20,
+            'period': 120
+        }
+    
+    current_time = time.time()
+    # Фильтруем только актуальные использования
+    recent_uses = [
+        timestamp for timestamp in _rate_limits[user_id]
+        if current_time - timestamp < 120  # 2 минуты период по умолчанию
+    ]
+    
+    return {
+        'current_usage': len(recent_uses),
+        'max_limit': 20,
+        'period': 120,
+        'reset_in': int(120 - (current_time - recent_uses[0])) if recent_uses else 0
+    }
