@@ -2,7 +2,8 @@
 Простой загрузчик модулей для Hydra UserBot
 """
 
-import importlib
+import importlib.util
+import importlib.machinery
 import sys
 import os
 import asyncio
