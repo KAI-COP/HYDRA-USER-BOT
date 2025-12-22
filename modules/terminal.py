@@ -1,5 +1,5 @@
 from utils.misc import edit_or_reply, fast_animation, rate_limit
-from modules.lang import translator
+from utils.misc import translator
 import asyncio
 import os
 import re

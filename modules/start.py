@@ -1,6 +1,6 @@
 import os
 from utils.misc import edit_or_reply, fast_animation
-from modules.lang import translator
+from utils.misc import translator
 
 PHOTO_URL = "https://i.ibb.co/QjpBGFjV/hydra-bot.jpg"
 

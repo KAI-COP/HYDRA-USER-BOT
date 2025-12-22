@@ -1,5 +1,5 @@
 from utils.misc import edit_or_reply, fast_animation
-from modules.lang import translator
+from utils.misc import translator
 import difflib
 import time
 
