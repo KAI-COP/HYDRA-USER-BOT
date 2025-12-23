@@ -55,13 +55,12 @@ async def start_handler(event):
             f"{BANNER}\n\n"
             f"🚀 <b>Hydra UserBot запущен</b>\n"
             f"<b>Версия:</b> <code>{__version__}</code> • <b>Префикс:</b> <code>{prefix}</code>\n\n"
-            f"👤 <b>Пользователь:</b> {firstname} (@{username})\n"
+            f"👤 <b>Пользователь:</b> {firstname}\n"
             f"🆔 <b>ID:</b> <code>{uid}</code>\n\n"
             f"⏱ <b>Аптайм:</b> <code>{uptime}</code>\n\n"
             f"🖥 <b>Система:</b> <code>{os_name}</code>\n"
             f"🏗 <b>Архитектура:</b> <code>{arch}</code>\n"
             f"🐍 <b>Python:</b> <code>{pyver}</code>\n\n"
-            f"<i>Разработчики: @global050 @Aubeig</i>"
         )
 
         await edit_or_reply(event, text, parse_mode="HTML")
