@@ -1,5 +1,3 @@
-# modules/cleanup.py
-
 from telethon import events
 from telethon.errors import RPCError
 from utils.misc import edit_or_reply
@@ -26,7 +24,6 @@ async def _delete_user_messages(client, chat_id, user_id, limit=None, progress_m
             await msg.delete()
             deleted += 1
             
-            # Обновляем прогресс каждые 10 сообщений
             if deleted % 10 == 0 and progress_msg:
                 percent = (deleted / total_scanned) * 100
                 await progress_msg.edit(f"🧹 **Cleaning...** `{deleted}/{total_scanned}` ({percent:.0f}%)")
@@ -41,7 +38,6 @@ async def _delete_user_messages(client, chat_id, user_id, limit=None, progress_m
     
     return deleted, total_scanned
 
-# 🔥 РАБОЧИЕ ОБРАБОТЧИКИ С ОТЛАДКОЙ
 async def cleanmy_handler(event):
     print("🚀 cleanmy_handler TRIGGERED!")
     print(f"Event text: {event.text}")
@@ -51,8 +47,7 @@ async def cleanmy_handler(event):
     me = await client.get_me()
     
     msg = await edit_or_reply(event, "🔍 **Scanning your messages...**")
-    
-    # Полная очистка (может быть долго!)
+
     deleted, scanned = await _delete_user_messages(
         client, chat.id, me.id, limit=None, progress_msg=msg
     )
@@ -95,7 +90,6 @@ async def cleaninfo_handler(event):
     
     msg = await edit_or_reply(event, "📊 **Counting your messages...**")
     
-    # Подсчитываем сообщения
     count = 0
     async for _ in client.iter_messages(chat.id, from_user=me.id, limit=5000):
         count += 1
@@ -108,5 +102,3 @@ async def cleaninfo_handler(event):
         f"`{prefix}cleanmyl` - delete last 1000\n"
         f"`{prefix}cleanmy` - delete ALL"
     )
-
-print("🔧 CLEANUP MODULE READY! Commands: cleanmy, cleanmyl, cleaninfo")

@@ -11,10 +11,8 @@ from telethon.errors import SessionPasswordNeededError
 import config
 from utils.misc import set_start_time
 
-# Настройка логирования
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-# Время запуска бота
 start_time = time.time()
 set_start_time(start_time)
 
@@ -41,24 +39,20 @@ async def main():
     print("""
     ╔══════════════════════════════╗
     ║         HYDRA USERBOT        ║
-    ║         Pure Version         ║
+    ║         1.2.0 Version        ║
     ║          Starting...         ║
     ╚══════════════════════════════╝
     """)
     
-    # Исправляем файл сессии если нужно
     fix_session_file()
-    
-    # Создаем клиент
+
     client = TelegramClient("hydra_session", config.api_id, config.api_hash)
-    
-    # Создаем директорию для модулей если не существует
+
     Path("modules").mkdir(exist_ok=True)
     
     try:
         await client.start()
-        
-        # Получаем информацию о пользователе
+
         me = await client.get_me()
         print(f"    ✅ Logged in as @{me.username or me.first_name}")
         
@@ -71,21 +65,18 @@ async def main():
     except Exception as e:
         print(f"    ❌ Failed to start: {e}")
         return
-    
-    # ЗАГРУЗКА МОДУЛЕЙ
+
     print("\n    📦 Loading modules...\n")
-    
-    # Импортируем загрузчик
+
     from utils.loader import load_all_modules
-    
-    # Загружаем модули
+
     success, total = await load_all_modules("modules", client)
     
     print(f"""
     ╔══════════════════════════════╗
     ║       HYDRA STARTED!         ║
-    ║    Modules: {success:2d}/{total:2d} loaded       ║
-    ║   Prefix: {config.prefix}                    ║
+    ║    Modules: {success:2d}/{total:2d} loaded     ║
+    ║   Prefix: {config.prefix}                  ║
     ║   Type {config.prefix}help for commands    ║
     ╚══════════════════════════════╝
     """)

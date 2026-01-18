@@ -1,12 +1,8 @@
-"""
-🎛 Hydra Start - Красивый стартовый экран
-"""
-
 import platform
 import time
 from utils.misc import edit_or_reply, rate_limit
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
 STARTED_AT = time.time()
 
 BANNER = "⚡ 𝗛𝗬𝗗𝗥𝗔 𝗨𝗦𝗘𝗥𝗕𝗢𝗧 ⚡"
@@ -36,7 +32,6 @@ def safe_get_modules_stats():
 
 @rate_limit(limit=5, period=30)
 async def start_handler(event):
-    """Показать стартовый экран с информацией"""
     try:
         from config import prefix
         user = event.sender

@@ -1,4 +1,3 @@
-# modules/stats.py
 
 from telethon import events, functions
 from utils.misc import edit_or_reply
@@ -11,7 +10,6 @@ modules_help = {
 }
 
 async def get_full_blocked_stats(client):
-    """Полный подсчет блоклиста БЕЗ лимитов"""
     blocked_users = 0
     blocked_bots = 0
     total_blocked = 0
@@ -30,8 +28,7 @@ async def get_full_blocked_stats(client):
                 break
                 
             total_blocked += len(result.users)
-            
-            # Классифицируем каждую порцию
+
             for user in result.users:
                 if hasattr(user, 'bot') and user.bot:
                     blocked_bots += 1
@@ -40,7 +37,6 @@ async def get_full_blocked_stats(client):
             
             offset += limit
             
-            # Безопасная остановка (максимум 5000)
             if offset > 5000:
                 break
                 
@@ -54,7 +50,6 @@ async def stats_handler(event):
     client = event.client
     msg = await edit_or_reply(event, "📚 **Считаю чаты + блоклист...**")
     
-    # Счетчики чатов (БЫСТРО)
     total_chats = 0
     private_chats = 0
     bots = 0
@@ -67,7 +62,6 @@ async def stats_handler(event):
         
         entity = dialog.entity
         
-        # Архив
         try:
             if hasattr(dialog, 'folder_id') and dialog.folder_id == 1:
                 archived += 1
@@ -75,7 +69,6 @@ async def stats_handler(event):
         except:
             pass
         
-        # Классификация чатов
         try:
             if hasattr(entity, 'bot') and entity.bot:
                 bots += 1
@@ -90,8 +83,7 @@ async def stats_handler(event):
         except:
             private_chats += 1
     
-    # 🔥 ПОЛНЫЙ БЛОКЛИСТ (цикл по всем страницам)
-    await msg.edit("📚 **Считаю полный блоклист...**")
+    await msg.edit("📚 **Считаю блоклист...**")
     total_blocked, blocked_users, blocked_bots = await get_full_blocked_stats(client)
     
     text = f"""📚 **Статистика аккаунта**
